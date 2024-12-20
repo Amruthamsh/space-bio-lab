@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { storage, auth, db } from "../firebase";
 import { v4 as uuidv4 } from "uuid";
@@ -12,7 +12,9 @@ import {
 } from "firebase/firestore";
 
 export default function UploadImages() {
-  const [imageURLs, setImageURLs] = useState<string[]>([]);
+  const [imageMetadata, setImageMetadata] = useState<
+    { url: string; timestamp: number }[]
+  >([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileUploadRef = useRef<HTMLInputElement>(null);
 
@@ -29,16 +31,19 @@ export default function UploadImages() {
       });
   }, []);
 
-  // Fetch existing images from Firebase Storage
+  // Fetch images sorted by timestamp on page load
   useEffect(() => {
     const fetchImages = async () => {
-      const storageRef = ref(storage, "uploads/");
       try {
-        const result = await listAll(storageRef);
-        const urls = await Promise.all(
-          result.items.map((item) => getDownloadURL(item))
+        const imagesCollection = collection(db, "images");
+        const imagesQuery = query(
+          imagesCollection,
+          orderBy("timestamp", "asc")
         );
-        setImageURLs(urls); // Set the initial list of images
+        const querySnapshot = await getDocs(imagesQuery);
+
+        const fetchedImages = querySnapshot.docs.map((doc) => doc.data());
+        setImageMetadata(fetchedImages as { url: string; timestamp: number }[]);
       } catch (error) {
         console.error("Error fetching images:", error);
       }
@@ -61,28 +66,33 @@ export default function UploadImages() {
       if (fileUploadRef.current?.files) {
         setIsUploading(true);
         const files = validateFiles(Array.from(fileUploadRef.current.files));
-        if (files.length === 0) throw new Error("No valid files to upload.");
 
-        const uploadedURLs: string[] = [];
         for (const file of files) {
           const uniqueFileName = `${uuidv4()}_${file.name}`;
-
           const storageRef = ref(storage, `uploads/${uniqueFileName}`);
+
+          // Upload the image to Firebase Storage
           await uploadBytes(storageRef, file);
           const downloadURL = await getDownloadURL(storageRef);
-          uploadedURLs.push(downloadURL);
-        }
 
-        setImageURLs((prev) => [...prev, ...uploadedURLs]); // Append new images
+          // Save metadata to Firestore
+          const timestamp = Date.now();
+          const imageDoc = {
+            url: downloadURL,
+            timestamp,
+          };
+          await addDoc(collection(db, "images"), imageDoc);
+
+          // Update state with new image
+          setImageMetadata((prev) => [...prev, imageDoc]);
+        }
       }
-    } catch (error: any) {
-      console.error(error);
-      alert(`Error: ${error.message || "Something went wrong!"}`);
+    } catch (error) {
+      console.error("Error uploading image:", error);
     } finally {
       setIsUploading(false);
     }
   };
-
   return (
     <div className="w-screen">
       <h1 className="text-4xl text-center">Upload Images to Firebase</h1>
@@ -102,16 +112,18 @@ export default function UploadImages() {
           {isUploading ? "Uploading..." : "Upload Images"}
         </button>
       </div>
-      {imageURLs.length > 0 && (
+      {imageMetadata.length > 0 && (
         <div className="grid grid-cols-3 gap-4 mt-6">
-          {imageURLs.map((url, index) => (
+          {imageMetadata.map((image, index) => (
             <div key={index} className="flex flex-col items-center">
               <img
-                src={url}
+                src={image.url}
                 alt={`Uploaded ${index}`}
                 className="w-full h-auto border"
               />
-              <p className="mt-2 text-sm truncate">{url.split("/").pop()}</p>
+              <p className="mt-2 text-sm">
+                {new Date(image.timestamp).toLocaleString()}
+              </p>
             </div>
           ))}
         </div>
