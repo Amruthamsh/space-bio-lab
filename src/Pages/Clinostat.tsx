@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { storage, auth, db } from "../firebase";
+import { storage, db, auth } from "../firebase";
 import { v4 as uuidv4 } from "uuid";
 import {
   collection,
@@ -10,6 +9,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 
 export default function UploadImages() {
   const [imageMetadata, setImageMetadata] = useState<
@@ -19,17 +19,6 @@ export default function UploadImages() {
   const fileUploadRef = useRef<HTMLInputElement>(null);
 
   console.log(Date.now().toString());
-
-  // Authenticate user when the component mounts
-  useEffect(() => {
-    signInWithEmailAndPassword(auth, "amruthamsh13@gmail.com", "space-bio-lab")
-      .then((userCredential) => {
-        console.log("User signed in:", userCredential.user);
-      })
-      .catch((error) => {
-        console.error("Authentication error:", error.code, error.message);
-      });
-  }, []);
 
   // Fetch images sorted by timestamp on page load
   useEffect(() => {
@@ -93,8 +82,25 @@ export default function UploadImages() {
       setIsUploading(false);
     }
   };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth)
+        .then(() => {
+          console.log("Signed out");
+        })
+        .catch((error) => {
+          console.error("Error signing out:", error);
+        });
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
   return (
     <div className="w-screen">
+      <button onClick={handleSignOut} className="p-2 bg-red-500 text-white">
+        Sign Out
+      </button>
       <h1 className="text-4xl text-center">Upload Images to Firebase</h1>
       <div className="flex flex-col items-center">
         <input
