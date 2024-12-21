@@ -41,7 +41,7 @@ export default function App() {
           path="/clinostat"
           element={
             <ProtectedRoute user={user}>
-              <Clinostat />
+              <Clinostat user={user} />
             </ProtectedRoute>
           }
         />
