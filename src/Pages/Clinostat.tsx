@@ -165,68 +165,95 @@ export default function UploadImages({ user }: { user: User | undefined }) {
   };
 
   return (
-    <div className="w-screen">
-      <button onClick={handleSignOut} className="p-2 bg-red-500 text-white">
+    <div className="w-screen min-h-screen bg-gray-900 text-gray-200 p-8">
+      {/* Sign Out Button */}
+      <button
+        onClick={handleSignOut}
+        className="p-3 bg-red-700 text-white rounded-lg shadow-md hover:bg-red-700 transition-all mb-4"
+      >
         Sign Out
       </button>
-      <h1>Hi {user?.email}</h1>
-      <h1 className="text-4xl text-center">Setups</h1>
-      <div className="flex flex-col items-center">
-        <input
-          type="text"
-          placeholder="New setup name"
-          value={newSetupName}
-          onChange={(e) => setNewSetupName(e.target.value)}
-          className="mb-4"
-        />
-        <button
-          onClick={handleNewSetup}
-          className="border-2 p-2 bg-blue-500 text-white"
-        >
-          Create New Setup
-        </button>
+      
+      <h1 className="text-4xl font-semibold text-center text-blue-400 mb-6">
+        Welcome, {user?.email}
+      </h1>
 
-        {setupDocs.map((setup, index) => (
-          <div
-            key={index}
-            className={`flex flex-col items-center ${
-              selectedSetupId === setup.id ? "bg-blue-200" : ""
-            }`}
+      {/* Setups Section */}
+      <div className="mb-8">
+        <h2 className="text-3xl font-semibold text-center text-blue-300 mb-4">
+          Setups
+        </h2>
+        
+        <div className="flex flex-col items-center space-y-6">
+          <input
+            type="text"
+            placeholder="Enter new setup name"
+            value={newSetupName}
+            onChange={(e) => setNewSetupName(e.target.value)}
+            className="w-full max-w-sm px-4 py-3 bg-gray-800 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition-all"
+          />
+          <button
+            onClick={handleNewSetup}
+            className="w-full max-w-sm px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
           >
-            <button onClick={() => setSelectedSetupId(setup.id)}>
-              {setup.name}
-            </button>
+            Create New Setup
+          </button>
+
+          <div className="w-fit flex flex-col space-y-4">
+            {setupDocs.map((setup, index) => (
+              <div
+                key={index}
+                className={`px-4 py-3 rounded-lg cursor-pointer text-center ${
+                  selectedSetupId === setup.id
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-800 hover:bg-gray-700"
+                } transition-all`}
+                onClick={() => setSelectedSetupId(setup.id)}
+              >
+                {setup.name}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
-      <h1 className="text-4xl text-center">Upload Images to Firebase</h1>
-      <div className="flex flex-col items-center">
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          ref={fileUploadRef}
-          className="mb-4"
-        />
-        <button
-          onClick={handleUpload}
-          className="border-2 p-2 bg-blue-500 text-white"
-          disabled={isUploading || selectedSetupId === null}
-        >
-          {isUploading ? "Uploading..." : "Upload Images"}
-        </button>
+      {/* Upload Images Section */}
+      <div className="mb-8">
+        <h2 className="text-3xl font-semibold text-center text-blue-300 mb-4">
+          Upload Images
+        </h2>
+        <div className="flex flex-col items-center space-y-6">
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            ref={fileUploadRef}
+            className="w-full max-w-sm px-4 py-3 bg-gray-800 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
+          />
+          <button
+            onClick={handleUpload}
+            className="w-full max-w-sm px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
+            disabled={isUploading || selectedSetupId === ""}
+          >
+            {isUploading ? "Uploading..." : "Upload Images"}
+          </button>
+        </div>
       </div>
+
+      {/* Display Images */}
       {imageMetadata.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {imageMetadata.map((image, index) => (
-            <div key={index} className="flex flex-col items-center">
+            <div
+              key={index}
+              className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
+            >
               <img
                 src={image.url}
                 alt={`Uploaded ${index}`}
-                className="w-full h-auto border"
+                className="w-full h-auto rounded-lg"
               />
-              <p className="mt-2 text-sm">
+              <p className="text-sm text-gray-400">
                 {new Date(image.timestamp).toLocaleString()}
               </p>
             </div>
