@@ -3,7 +3,6 @@ import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  updateCurrentUser,
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase";
