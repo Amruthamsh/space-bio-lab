@@ -166,97 +166,99 @@ export default function UploadImages({ user }: { user: User | undefined }) {
 
   return (
     <div className="flex w-screen min-h-screen bg-gray-900 text-gray-200">
-  <div className="w-64 bg-gray-800 p-6 space-y-8">
-    <button
-      onClick={handleSignOut}
-      className="w-full py-3 bg-red-700 text-white rounded-lg shadow-md hover:bg-red-700 transition-all"
-    >
-      Sign Out
-    </button>
-
-    <div className="space-y-6">
-      <h2 className="text-2xl pt-6 font-semibold text-center text-blue-300 ">Setups</h2>
-      <input
-        type="text"
-        placeholder="Enter new setup name"
-        value={newSetupName}
-        onChange={(e) => setNewSetupName(e.target.value)}
-        className="w-full px-4 py-3 bg-gray-800 text-gray-200 rounded-lg border-2 border-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition-all"
-      />
-      <button
-        onClick={handleNewSetup}
-        className="w-full py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
-      >
-        Create New Setup
-      </button>
-
-      <div className="space-y-4">
-        {setupDocs.map((setup, index) => (
-          <div
-            key={index}
-            className={`px-4 py-3 rounded-lg cursor-pointer text-center ${
-              selectedSetupId === setup.id
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-gray-600 hover:bg-gray-700"
-            } transition-all`}
-            onClick={() => setSelectedSetupId(setup.id)}
-          >
-            {setup.name}
+      <div className="w-64 bg-gray-800 p-6 space-y-8">
+        <div className="text-xl font-semibold text-blue-100 mb-0 text-center">
+            Welcome, {user?.email}
           </div>
-        ))}
-      </div>
-    </div>
-  </div>
 
-  <div className="flex-1 p-8 space-y-8">
-    <div className="text-xl font-semibold text-blue-100 mb-4 text-center">
-      Welcome, {user?.email}
-    </div>
-
-
-    <div>
-      <h2 className="text-3xl font-semibold text-center text-blue-300 mb-4">
-        Upload Images
-      </h2>
-      <div className="flex flex-col items-center space-y-6">
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          ref={fileUploadRef}
-          className="w-full max-w-sm px-4 py-3 bg-gray-800 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
-        />
         <button
-          onClick={handleUpload}
-          className="w-full max-w-sm px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
-          disabled={isUploading || selectedSetupId === ""}
+          onClick={handleSignOut}
+          className="w-24 py-3 bg-red-700 text-white rounded-lg shadow-md hover:bg-red-700 transition-all ml-14"
         >
-          {isUploading ? "Uploading..." : "Upload Images"}
+          Sign Out
         </button>
+
+        <div className="space-y-6">
+          <h2 className="text-2xl pt-6 font-semibold text-center text-blue-300">Setups</h2>
+          <div className="space-y-4">
+            {setupDocs.map((setup, index) => (
+              <div
+                key={index}
+                className={`px-4 py-3 rounded-lg cursor-pointer text-center ${
+                  selectedSetupId === setup.id
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-600 hover:bg-gray-700"
+                } transition-all`}
+                onClick={() => setSelectedSetupId(setup.id)}
+              >
+                {setup.name}
+              </div>
+            ))}
+          </div>
+
+          <input
+            type="text"
+            placeholder="Enter new setup name"
+            value={newSetupName}
+            onChange={(e) => setNewSetupName(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-800 text-gray-200 rounded-lg border-2 border-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition-all"
+          />
+          <button
+            onClick={handleNewSetup}
+            className="w-full py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
+          >
+            Create New Setup
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 p-8 space-y-8">
+        
+        <div>
+          <h2 className="text-3xl font-semibold text-center text-blue-300 mb-4">
+            Upload Images
+          </h2>
+          <div className="flex flex-col items-center space-y-6">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              ref={fileUploadRef}
+              className="w-full max-w-sm px-4 py-3 bg-gray-800 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
+              disabled={selectedSetupId === ""}
+            />
+            <button
+              onClick={handleUpload}
+              className="w-full max-w-sm px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all"
+              disabled={isUploading || selectedSetupId === ""}
+            >
+              {isUploading ? "Uploading..." : "Upload Images"}
+            </button>
+          </div>
+        </div>
+
+        {imageMetadata.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {imageMetadata.map((image, index) => (
+              <div
+                key={index}
+                className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
+              >
+                <img
+                  src={image.url}
+                  alt={`Uploaded ${index}`}
+                  className="w-full h-auto rounded-lg"
+                />
+                <p className="text-sm text-gray-400">
+                  {new Date(image.timestamp).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
 
-    {imageMetadata.length > 0 && (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        {imageMetadata.map((image, index) => (
-          <div
-            key={index}
-            className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
-          >
-            <img
-              src={image.url}
-              alt={`Uploaded ${index}`}
-              className="w-full h-auto rounded-lg"
-            />
-            <p className="text-sm text-gray-400">
-              {new Date(image.timestamp).toLocaleString()}
-            </p>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-</div>
 
 
   );
