@@ -166,20 +166,22 @@ export default function UploadImages({ user }: { user: User | undefined }) {
 
   return (
     <div className="flex w-screen min-h-screen bg-gray-900 text-gray-200">
-      <div className="w-64 bg-gray-800 p-6 space-y-8">
+      <div className="w-72 bg-gray-800 p-6 space-y-8">
         <div className="text-xl font-semibold text-blue-100 mb-0 text-center">
-            Welcome, {user?.email}
-          </div>
+          Welcome, {user?.displayName ? user?.displayName : user?.email}
+        </div>
 
         <button
           onClick={handleSignOut}
-          className="w-24 py-3 bg-red-700 text-white rounded-lg shadow-md hover:bg-red-700 transition-all ml-14"
+          className="w-24 ml-16 py-2 bg-red-700 text-white rounded-lg shadow-md hover:bg-red-700 transition-all"
         >
           Sign Out
         </button>
 
         <div className="space-y-6">
-          <h2 className="text-2xl pt-6 font-semibold text-center text-blue-300">Setups</h2>
+          <h2 className="text-2xl pt-6 font-semibold text-center text-blue-300">
+            Setups
+          </h2>
           <div className="space-y-4">
             {setupDocs.map((setup, index) => (
               <div
@@ -213,7 +215,6 @@ export default function UploadImages({ user }: { user: User | undefined }) {
       </div>
 
       <div className="flex-1 p-8 space-y-8">
-        
         <div>
           <h2 className="text-3xl font-semibold text-center text-blue-300 mb-4">
             Upload Images
@@ -258,8 +259,5 @@ export default function UploadImages({ user }: { user: User | undefined }) {
         )}
       </div>
     </div>
-
-
-
   );
 }

@@ -27,14 +27,13 @@ export default function Navbar() {
       >
         Clinostat
       </NavLink>
-      <NavLink
-        to="/microbial-visualizations"
-        className={({ isActive }) =>
-          isActive ? "text-blue-600 font-bold" : "text-gray-800"
-        }
+
+      <a
+        className="text-gray-800"
+        href="https://amruthamsh.github.io/plant-simulations/"
       >
-        Microbial Visualizations
-      </NavLink>
+        Plant Simulations
+      </a>
     </nav>
   );
 }
