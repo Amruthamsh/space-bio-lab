@@ -11,6 +11,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { signOut, User } from "firebase/auth";
+import Cropper from "react-easy-crop";
 
 export default function UploadImages({ user }: { user: User | undefined }) {
   const [imageMetadata, setImageMetadata] = useState<
@@ -24,6 +25,32 @@ export default function UploadImages({ user }: { user: User | undefined }) {
   );
   const [selectedSetupId, setSelectedSetupId] = useState<string>("");
   const [newSetupName, setNewSetupName] = useState<string>("");
+
+  const [editImage, setEditImage] = useState<boolean>(false);
+  const [editImageIndex, setEditImageIndex] = useState<number>(0);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+
+  interface CroppedArea {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
+
+  interface CroppedAreaPixels {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
+
+  const onCropComplete = (
+    croppedArea: CroppedArea,
+    croppedAreaPixels: CroppedAreaPixels
+  ) => {
+    console.log(croppedArea, croppedAreaPixels);
+  };
 
   // Fetch setups on page load
   useEffect(() => {
@@ -85,7 +112,7 @@ export default function UploadImages({ user }: { user: User | undefined }) {
     );
   };
 
-  // Handle Upload
+  // Handle Image Upload
   const handleUpload = async () => {
     if (selectedSetupId === "") {
       alert("Please select a valid setup before uploading images.");
@@ -164,6 +191,15 @@ export default function UploadImages({ user }: { user: User | undefined }) {
     }
   };
 
+  const saveEditedImage = () => {
+    // Save the edited image
+  };
+
+  const resetImageCrop = () => {
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+  };
+
   return (
     <div className="flex w-screen min-h-screen bg-gray-900 text-gray-200">
       <div className="w-72 bg-gray-800 p-6 space-y-8">
@@ -240,23 +276,93 @@ export default function UploadImages({ user }: { user: User | undefined }) {
 
         {imageMetadata.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {imageMetadata.map((image, index) => (
-              <div
-                key={index}
-                className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
-              >
-                <img
-                  src={image.url}
-                  alt={`Uploaded ${index}`}
-                  className="w-full h-auto rounded-lg"
-                />
-                <p className="text-sm text-gray-400">
-                  {new Date(image.timestamp).toLocaleString()}
-                </p>
-              </div>
-            ))}
+            {imageMetadata
+              .sort((a, b) => a.timestamp - b.timestamp)
+              .map((image, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
+                >
+                  <img
+                    src={image.url}
+                    alt={`Uploaded ${index}`}
+                    className="w-full h-auto rounded-lg"
+                  />
+                  <p className="text-sm text-gray-400">
+                    Timestamp: {new Date(image.timestamp).toLocaleString()}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setEditImage(true);
+                      setEditImageIndex(index);
+                    }}
+                  >
+                    Edit
+                  </button>
+                </div>
+              ))}
           </div>
         )}
+
+        {
+          // Edit image model here
+          editImage && (
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center p-4 overflow-hidden z-50">
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-6">
+                <h2 className="text-xl font-semibold text-blue-300 text-center">
+                  Edit Image
+                </h2>
+                <div className="relative w-full h-64">
+                  <Cropper
+                    image={imageMetadata[editImageIndex].url}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={4 / 3}
+                    onCropChange={setCrop}
+                    onCropComplete={onCropComplete}
+                    onZoomChange={setZoom}
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-4">
+                  <label className="text-gray-200 text-sm font-medium">
+                    Change Date and Time:
+                  </label>
+                  <input
+                    type="datetime-local"
+                    defaultValue={new Date(
+                      imageMetadata[editImageIndex].timestamp
+                    )
+                      .toISOString()
+                      .slice(0, 16)}
+                    className="w-full px-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={() => setEditImage(false)}
+                    className="px-4 py-2 bg-gray-600 text-gray-200 rounded-lg hover:bg-gray-700 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => saveEditedImage}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={resetImageCrop}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        }
       </div>
     </div>
   );
