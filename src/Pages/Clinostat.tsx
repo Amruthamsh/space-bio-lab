@@ -273,34 +273,34 @@ export default function UploadImages({ user }: { user: User | undefined }) {
             </button>
           </div>
         </div>
-
         {imageMetadata.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {imageMetadata
-              .sort((a, b) => a.timestamp - b.timestamp)
-              .map((image, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
-                >
+            {imageMetadata.map((image, index) => (
+              <div
+                key={index}
+                className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
+              >
+                <div className="relative w-full max-w-md aspect-[4/4] overflow-hidden bg-gray-800 rounded-lg">
                   <img
                     src={image.url}
-                    alt={`Uploaded ${index}`}
-                    className="w-full h-auto rounded-lg"
+                    alt={`Uploaded`}
+                    className="w-full h-full object-cover"
                   />
-                  <p className="text-sm text-gray-400">
-                    Timestamp: {new Date(image.timestamp).toLocaleString()}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setEditImage(true);
-                      setEditImageIndex(index);
-                    }}
-                  >
-                    Edit
-                  </button>
                 </div>
-              ))}
+
+                <p className="text-sm text-gray-400">
+                  Timestamp: {new Date(image.timestamp).toLocaleString()}
+                </p>
+                <button
+                  onClick={() => {
+                    setEditImage(true);
+                    setEditImageIndex(index);
+                  }}
+                >
+                  Edit
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
@@ -317,14 +317,14 @@ export default function UploadImages({ user }: { user: User | undefined }) {
                     image={imageMetadata[editImageIndex].url}
                     crop={crop}
                     zoom={zoom}
-                    aspect={4 / 3}
+                    aspect={4 / 4}
                     onCropChange={setCrop}
                     onCropComplete={onCropComplete}
                     onZoomChange={setZoom}
                   />
                 </div>
 
-                <div className="flex flex-col space-y-4">
+                {/* <div className="flex flex-col space-y-4">
                   <label className="text-gray-200 text-sm font-medium">
                     Change Date and Time:
                   </label>
@@ -337,7 +337,7 @@ export default function UploadImages({ user }: { user: User | undefined }) {
                       .slice(0, 16)}
                     className="w-full px-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   />
-                </div>
+                </div> */}
 
                 <div className="flex justify-end space-x-4">
                   <button
