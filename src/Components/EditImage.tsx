@@ -5,19 +5,19 @@ import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { User } from "firebase/auth";
 
-interface CroppedArea {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+// interface CroppedArea {
+//   x: number;
+//   y: number;
+//   width: number;
+//   height: number;
+// }
 
-interface CroppedAreaPixels {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+// interface CroppedAreaPixels {
+//   x: number;
+//   y: number;
+//   width: number;
+//   height: number;
+// }
 
 const EditImage = ({
   imageMetadata,
