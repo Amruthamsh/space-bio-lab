@@ -11,7 +11,13 @@ import UploadImages from "../Components/UploadImages";
 
 export default function Clinostat({ user }: { user: User | undefined }) {
   const [imageMetadata, setImageMetadata] = useState<
-    { id: string; url: string; timestamp: number }[]
+    {
+      id: string;
+      url: string;
+      timestamp: number;
+      crop: { x: number; y: number };
+      zoom: number;
+    }[]
   >([]);
 
   const [selectedSetupId, setSelectedSetupId] = useState<string>("");
@@ -82,11 +88,19 @@ export default function Clinostat({ user }: { user: User | undefined }) {
                 className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center space-y-4"
               >
                 <div className="relative w-full max-w-md aspect-[4/4] overflow-hidden bg-gray-800 rounded-lg">
-                  <img
-                    src={image.url}
-                    alt={`Uploaded`}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="absolute inset-0">
+                    <img
+                      src={image.url}
+                      alt="Cropped"
+                      style={{
+                        objectPosition: `${image.crop?.x ?? 50}% ${
+                          image.crop?.y ?? 50
+                        }%`,
+                        transform: `scale(${image.zoom ?? 1})`,
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
 
                 <p className="text-sm text-gray-400">

@@ -5,19 +5,12 @@ import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { User } from "firebase/auth";
 
-// interface CroppedArea {
-//   x: number;
-//   y: number;
-//   width: number;
-//   height: number;
-// }
-
-// interface CroppedAreaPixels {
-//   x: number;
-//   y: number;
-//   width: number;
-//   height: number;
-// }
+interface CroppedArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 const EditImage = ({
   imageMetadata,
@@ -34,9 +27,12 @@ const EditImage = ({
   selectedSetupId: string;
   user: User;
 }) => {
-  const [editDate, setEditDate] = useState<number>(new Date().getTime());
+  const [editDate, setEditDate] = useState<number>(
+    imageMetadata[editImageIndex].timestamp ?? new Date().getTime()
+  );
   const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(1.1);
+  const [cropPercent, setCropPercent] = useState({ x: 0, y: 0 });
 
   const saveEditedImage = async () => {
     if (!editDate) {
@@ -45,11 +41,13 @@ const EditImage = ({
     }
     const imageId = imageMetadata[editImageIndex].id;
 
+    console.log(crop, zoom, editDate);
+
     setImageMetadata((prev: any) => {
       const updatedImages = [...prev];
       updatedImages[editImageIndex] = {
         ...updatedImages[editImageIndex],
-        crop,
+        crop: cropPercent,
         zoom,
         timestamp: editDate,
       };
@@ -64,7 +62,7 @@ const EditImage = ({
           imageId
         ),
         {
-          crop,
+          crop: cropPercent,
           zoom,
           timestamp: editDate,
         }
@@ -78,7 +76,26 @@ const EditImage = ({
 
   const resetImageCrop = () => {
     setCrop({ x: 0, y: 0 });
-    setZoom(1);
+    setCropPercent({ x: 0, y: 0 });
+    setZoom(1.1);
+  };
+
+  function clamp(number: number, min: number, max: number) {
+    if (isNaN(number)) return 0;
+    return Math.max(min, Math.min(number, max));
+  }
+
+  const onCropComplete = (croppedArea: CroppedArea) => {
+    const newX = croppedArea.x / (100 - croppedArea.width);
+    const newY = croppedArea.y / (100 - croppedArea.height);
+
+    clamp(newX, 0, 1);
+    clamp(newY, 0, 1);
+
+    setCropPercent({
+      x: newX * 100,
+      y: newY * 100,
+    });
   };
 
   return (
@@ -92,20 +109,15 @@ const EditImage = ({
             image={imageMetadata[editImageIndex].url}
             crop={crop}
             zoom={zoom}
-            aspect={4 / 4}
             onCropChange={setCrop}
             onZoomChange={setZoom}
+            aspect={4 / 4}
+            onCropComplete={onCropComplete}
           />
         </div>
 
         <Flatpickr
-          value={
-            editImageIndex !== null &&
-            imageMetadata[editImageIndex]?.timestamp &&
-            !isNaN(new Date(imageMetadata[editImageIndex].timestamp).getTime())
-              ? new Date(imageMetadata[editImageIndex].timestamp)
-              : new Date()
-          }
+          value={editDate}
           options={{ enableTime: true, enableSeconds: true }}
           onChange={(selectedDates) => {
             if (selectedDates.length > 0) {
