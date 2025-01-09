@@ -29,6 +29,7 @@ export default function App() {
   if (isFetching) {
     return <div>Loading...</div>;
   }
+
   return (
     <div className="w-screen">
       <Navbar />
