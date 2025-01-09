@@ -23,6 +23,8 @@ export default function Clinostat({ user }: { user: User | undefined }) {
   const [selectedSetupId, setSelectedSetupId] = useState<string>("");
   const [editImageIndex, setEditImageIndex] = useState<number>(0);
   const [editImage, setEditImage] = useState<boolean>(false);
+  const sortOptions = ["Ascending", "Descending"];
+  const [sortOrder, setSortOrder] = useState<string>(sortOptions[0]);
 
   // Fetch images for the selected setup
   useEffect(() => {
@@ -58,6 +60,18 @@ export default function Clinostat({ user }: { user: User | undefined }) {
     };
   }, [selectedSetupId, user]);
 
+  useEffect(() => {
+    if (sortOrder === "Ascending") {
+      setImageMetadata(
+        [...imageMetadata].sort((a, b) => a.timestamp - b.timestamp)
+      );
+    } else {
+      setImageMetadata(
+        [...imageMetadata].sort((a, b) => b.timestamp - a.timestamp)
+      );
+    }
+  }, [sortOrder]);
+
   return (
     <div className="flex w-screen min-h-screen bg-gray-900 text-gray-200">
       <div className="w-72 bg-gray-800 p-6 space-y-8">
@@ -79,6 +93,21 @@ export default function Clinostat({ user }: { user: User | undefined }) {
 
       <div className="flex-1 p-8 space-y-8">
         <UploadImages selectedSetupId={selectedSetupId} user={user!} />
+
+        {selectedSetupId && (
+          <select
+            name="sort-options"
+            id=""
+            className="w-36 p-2 bg-gray-800 text-gray-200 rounded-lg shadow-md"
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            {sortOptions.map((option, index) => (
+              <option key={index} value={option} className="text-black">
+                {option}
+              </option>
+            ))}
+          </select>
+        )}
 
         {imageMetadata.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
