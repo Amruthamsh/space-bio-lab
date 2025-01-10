@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ const SignUp = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
 
   const [isSignUpActive, setIsSignUpActive] = useState(false);
   const handleMethodChange = () => {
@@ -24,6 +26,15 @@ const SignUp = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("User signed up:", user);
+
+        // Update user profile with name
+        updateProfile(user, {
+          displayName: name,
+        }).then(() => {
+          console.log("Profile updated successfully");
+        });
+
+        handleSignIn();
       })
       .catch((error) => {
         console.error("Sign up error:", error.code, error.message);
@@ -59,6 +70,24 @@ const SignUp = () => {
         </h1>
         <form>
           <div className="mb-4">
+            {isSignUpActive && (
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
             <label
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"

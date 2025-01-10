@@ -8,7 +8,6 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
-import Microbial from "./Pages/Microbial";
 
 export default function App() {
   const [user, setUser] = useState<User>();
@@ -30,6 +29,7 @@ export default function App() {
   if (isFetching) {
     return <div>Loading...</div>;
   }
+
   return (
     <div className="w-screen">
       <Navbar />
@@ -45,7 +45,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/microbial-visualizations" element={<Microbial />} />
       </Routes>
     </div>
   );

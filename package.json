@@ -13,7 +13,10 @@
     "firebase": "^11.1.0",
     "p5": "^1.11.2",
     "react": "^18.3.1",
+    "react-datepicker": "^7.5.0",
     "react-dom": "^18.3.1",
+    "react-easy-crop": "^5.2.0",
+    "react-flatpickr": "^3.10.13",
     "react-p5": "^1.4.1",
     "react-router-dom": "^6.27.0",
     "uuid": "^11.0.3"
@@ -22,6 +25,7 @@
     "@eslint/js": "^9.11.1",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
+    "@types/react-flatpickr": "^3.8.11",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.11.1",
