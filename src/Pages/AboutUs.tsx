@@ -36,7 +36,7 @@ export default function AboutUs() {
         <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="relative h-72">
             <img
-              src="" 
+              src="/our_team.jpg" 
               alt="Our Team"
               className="w-full h-full object-cover rounded-t-lg"
             />

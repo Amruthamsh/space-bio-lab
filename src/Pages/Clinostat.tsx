@@ -258,8 +258,6 @@ export default function UploadImages({ user }: { user: User | undefined }) {
         )}
       </div>
     </div>
-
-
-
+    
   );
 }
