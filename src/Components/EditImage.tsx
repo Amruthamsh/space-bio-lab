@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import Cropper from "react-easy-crop";
 import Flatpickr from "react-flatpickr";
 import { updateDoc, doc } from "firebase/firestore";
-import { db, storage } from "../firebase";
+import { db } from "../firebase";
 import { User } from "firebase/auth";
-import { ref, deleteObject } from "firebase/storage";
-import { deleteDoc } from "firebase/firestore";
 
 interface CroppedArea {
   x: number;
