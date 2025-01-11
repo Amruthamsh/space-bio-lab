@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Cropper from "react-easy-crop";
 import Flatpickr from "react-flatpickr";
 import { updateDoc, doc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
 import { User } from "firebase/auth";
+import { ref, deleteObject } from "firebase/storage";
+import { deleteDoc } from "firebase/firestore";
 
 interface CroppedArea {
   x: number;
@@ -40,8 +42,6 @@ const EditImage = ({
       return;
     }
     const imageId = imageMetadata[editImageIndex].id;
-
-    console.log(crop, zoom, editDate);
 
     setImageMetadata((prev: any) => {
       const updatedImages = [...prev];
@@ -80,30 +80,33 @@ const EditImage = ({
     setZoom(1.1);
   };
 
-  function clamp(number: number, min: number, max: number) {
+  function checkNan(number: number) {
     if (isNaN(number)) return 0;
-    return Math.max(min, Math.min(number, max));
+    else return number;
   }
 
   const onCropComplete = (croppedArea: CroppedArea) => {
-    const newX = croppedArea.x / (100 - croppedArea.width);
-    const newY = croppedArea.y / (100 - croppedArea.height);
+    const X = croppedArea.x / (100 - croppedArea.width);
+    const Y = croppedArea.y / (100 - croppedArea.height);
 
-    clamp(newX, 0, 1);
-    clamp(newY, 0, 1);
+    const newX = checkNan(X);
+    const newY = checkNan(Y);
 
     setCropPercent({
-      x: newX * 100,
-      y: newY * 100,
+      x: newX! * 100,
+      y: newY! * 100,
     });
   };
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center p-4 overflow-hidden z-50">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-6">
-        <h2 className="text-xl font-semibold text-blue-300 text-center">
-          Edit Image
-        </h2>
+        <div className="relative">
+          <h2 className="text-xl font-semibold text-blue-300 text-center">
+            Edit Image
+          </h2>
+        </div>
+
         <div className="relative w-full h-64">
           <Cropper
             image={imageMetadata[editImageIndex].url}

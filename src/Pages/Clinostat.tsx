@@ -8,6 +8,10 @@ import { handleSignOut } from "../HelperFunctions/AuthHelperFunctions";
 import Setups from "../Components/Setups";
 import EditImage from "../Components/EditImage";
 import UploadImages from "../Components/UploadImages";
+import { storage } from "../firebase";
+import { ref, deleteObject } from "firebase/storage";
+import { deleteDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 
 export default function Clinostat({ user }: { user: User | undefined }) {
   const [imageMetadata, setImageMetadata] = useState<
@@ -59,6 +63,50 @@ export default function Clinostat({ user }: { user: User | undefined }) {
       unsubscribe();
     };
   }, [selectedSetupId, user]);
+
+  // Helper function to extract the file path from the image URL
+  const extractPathFromUrl = (imageUrl: string) => {
+    const bucketPath = imageUrl.split("/o/")[1].split("?")[0];
+    return decodeURIComponent(bucketPath);
+  };
+
+  // Function to delete an image from the database and storage
+  const deleteImage = async (deleteImageIndex: number) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this image? This action cannot be undone."
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    const imageUrl = imageMetadata[deleteImageIndex].url;
+    console.log("imageUrl: ", imageUrl);
+
+    const path = extractPathFromUrl(imageUrl);
+    const imageId = imageMetadata[deleteImageIndex].id;
+
+    try {
+      const storageRef = ref(storage, path);
+      await deleteObject(storageRef);
+
+      await deleteDoc(
+        doc(db, `images/${user?.uid}/setups/${selectedSetupId}/images`, imageId)
+      );
+
+      setImageMetadata((prev: any) =>
+        prev.filter((image: any) => image.id !== imageId)
+      );
+
+      setEditImage(false);
+
+      console.log("Image deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting image: ", error);
+
+      alert("Failed to delete the image. Please try again.");
+    }
+  };
 
   useEffect(() => {
     if (sortOrder === "Ascending") {
@@ -135,14 +183,24 @@ export default function Clinostat({ user }: { user: User | undefined }) {
                 <p className="text-sm text-gray-400">
                   Timestamp: {new Date(image.timestamp).toLocaleString()}
                 </p>
-                <button
-                  onClick={() => {
-                    setEditImage(true);
-                    setEditImageIndex(index);
-                  }}
-                >
-                  Edit
-                </button>
+                <div className="flex place-content-between w-full">
+                  {" "}
+                  <button
+                    onClick={() => {
+                      setEditImage(true);
+                      setEditImageIndex(index);
+                    }}
+                    className="no-underline hover:underline hover:underline-offset-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="no-underline hover:underline hover:underline-offset-2"
+                    onClick={() => deleteImage(index)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -160,6 +218,5 @@ export default function Clinostat({ user }: { user: User | undefined }) {
         )}
       </div>
     </div>
-    
   );
 }

@@ -8,6 +8,8 @@ import {
   getDocs,
   query,
   orderBy,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 
 const Setups = ({
@@ -70,6 +72,37 @@ const Setups = ({
     }
   };
 
+  const handleDeleteSetup = async (setupId: string) => {
+    try {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this setup? This action cannot be undone."
+      );
+
+      if (!confirmDelete) {
+        return;
+      }
+      const setupRef = doc(db, `images/${user?.uid}/setups/${setupId}`);
+      const imagesCollection = collection(
+        db,
+        `images/${user?.uid}/setups/${setupId}/images`
+      );
+
+      const imageDocs = await getDocs(imagesCollection);
+      for (const imageDoc of imageDocs.docs) {
+        await deleteDoc(imageDoc.ref);
+      }
+
+      await deleteDoc(setupRef);
+
+      setSetupDocs((prev) => prev.filter((setup) => setup.id !== setupId));
+    } catch (error) {
+      console.error(
+        "Error deleting setup and its images subcollection:",
+        error
+      );
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl pt-6 font-semibold text-center text-blue-300">
@@ -79,14 +112,21 @@ const Setups = ({
         {setupDocs.map((setup, index) => (
           <div
             key={index}
-            className={`px-4 py-3 rounded-lg cursor-pointer text-center ${
+            className={` py-3 px-1 rounded-lg cursor-pointer text-center flex place-content-between ${
               selectedSetupId === setup.id
                 ? "bg-blue-600 text-white shadow-md"
                 : "bg-gray-600 hover:bg-gray-700"
             } transition-all`}
             onClick={() => setSelectedSetupId(setup.id)}
           >
-            {setup.name}
+            <p className="px-3">{setup.name}</p>
+
+            <button
+              className="p-0.5 px-2 hover:bg-red-600 rounded-md"
+              onClick={() => handleDeleteSetup(setup.id)}
+            >
+              X
+            </button>
           </div>
         ))}
       </div>

@@ -12,6 +12,7 @@ import { ProtectedRoute } from "./Components/ProtectedRoute";
 export default function App() {
   const [user, setUser] = useState<User>();
   const [isFetching, setIsFetching] = useState(true);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
